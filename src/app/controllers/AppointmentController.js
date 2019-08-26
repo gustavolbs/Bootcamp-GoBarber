@@ -110,15 +110,7 @@ class AppointmentController {
     /**
      * Notify appointment provider
      */
-    const user = await User.findByPk(req.userId, {
-      include: [
-        {
-          model: User,
-          as: 'provider',
-          attributes: ['name', 'email'],
-        },
-      ],
-    });
+    const user = await User.findByPk(req.userId);
 
     const formattedDate = format(
       hourStart,
@@ -142,6 +134,11 @@ class AppointmentController {
           as: 'provider',
           attributes: ['name', 'email'],
         },
+        {
+          model: User,
+          as: 'user',
+          attributes: ['name'],
+        },
       ],
     });
 
@@ -159,15 +156,22 @@ class AppointmentController {
         .json({ error: 'You can only cancel appointments 2 hours in advance' });
     }
 
-    appointment.canceled_at = new Date();
-
-    await appointment.save();
-
     await Mail.sendMail({
       to: `${appointment.provider.name} <${appointment.provider.email}>`,
       subject: `Agendamento cancelado`,
-      text: `Você tem um novo cancelamento`,
+      template: 'cancellation',
+      context: {
+        provider: appointment.provider.name,
+        user: appointment.user.name,
+        date: format(appointment.date, "'dia' dd 'de' MMMM', às' H:mm'h'", {
+          locale: pt,
+        }),
+      },
     });
+
+    appointment.canceled_at = new Date();
+
+    await appointment.save();
 
     return res.json(appointment);
   }
