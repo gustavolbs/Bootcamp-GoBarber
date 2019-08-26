@@ -10,7 +10,6 @@ class NotificationController {
       },
     });
 
-    console.log(req.userId);
     if (!isProvider) {
       return res
         .status(401)

@@ -2379,10 +2379,10 @@ node-pre-gyp@^0.12.0:
     semver "^5.3.0"
     tar "^4"
 
-nodemailer-handlebars@^1.0.1:
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/nodemailer-handlebars/-/nodemailer-handlebars-1.0.1.tgz#55abc0d1fbb05351972738efd8a48ee97d1b4ba0"
-  integrity sha512-doSPCuWpHXoU1/EvmzsNhMlesk/F4zA0PIWdDKqwgEMGdjgCRazYC5VrWCt28VnwiWS8FrqE/Su3HwaozjY8NQ==
+nodemailer-express-handlebars@^3.1.0:
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/nodemailer-express-handlebars/-/nodemailer-express-handlebars-3.1.0.tgz#e80da7528cfd30a8dd49c002642854edcab72c68"
+  integrity sha512-JLt+lAlo/D3TfpVnDY+imLHAAonX5L9FEHaczyiPxWCH259bsfxEjPSWl/rWgnvcoFT8uC/hwHi/I0ScFmHlIQ==
   dependencies:
     express-handlebars "^3.0.0"
 
