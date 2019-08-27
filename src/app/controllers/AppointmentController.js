@@ -7,7 +7,8 @@ import User from '../models/User';
 import File from '../models/File';
 import Notification from '../schemas/Notification';
 
-import Mail from '../../lib/Mail';
+import Queue from '../../lib/Queue';
+import CancellationMail from '../jobs/CancellationMail';
 
 class AppointmentController {
   async index(req, res) {
@@ -19,7 +20,7 @@ class AppointmentController {
         canceled_at: null,
       },
       order: ['date'],
-      attributes: ['id', 'date'],
+      attributes: ['id', 'date', 'past', 'cancelable'],
       limit: 20,
       offset: (page - 1) * 20,
       include: [
@@ -142,6 +143,12 @@ class AppointmentController {
       ],
     });
 
+    if (appointment.canceled_at !== null) {
+      return res.status(400).json({
+        error: 'This appointment has already been canceled',
+      });
+    }
+
     if (appointment.user_id !== req.userId) {
       return res.status(401).json({
         error: "You don't have permission to cancel this appointment",
@@ -156,22 +163,13 @@ class AppointmentController {
         .json({ error: 'You can only cancel appointments 2 hours in advance' });
     }
 
-    await Mail.sendMail({
-      to: `${appointment.provider.name} <${appointment.provider.email}>`,
-      subject: `Agendamento cancelado`,
-      template: 'cancellation',
-      context: {
-        provider: appointment.provider.name,
-        user: appointment.user.name,
-        date: format(appointment.date, "'dia' dd 'de' MMMM', às' H:mm'h'", {
-          locale: pt,
-        }),
-      },
-    });
-
     appointment.canceled_at = new Date();
 
     await appointment.save();
+
+    await Queue.add(CancellationMail.key, {
+      appointment,
+    });
 
     return res.json(appointment);
   }
